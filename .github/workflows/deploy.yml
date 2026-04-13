@@ -13,7 +13,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -r requirements.txt
-      - run: pytest app/test_app.py -v
+      - run: PYTHONPATH=. pytest app/test_app.py -v
 
   build-and-deploy:
     needs: test

@@ -1,0 +1,41 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: pytest app/test_app.py -v
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - run: az acr login --name healthmonitoracrdev
+
+      - run: |
+          docker build -t healthmonitoracrdev.azurecr.io/devops-health-api:${{ github.sha }} .
+          docker push healthmonitoracrdev.azurecr.io/devops-health-api:${{ github.sha }}
+
+      - run: |
+          az webapp config container set \
+            --name health-monitor-dev \
+            --resource-group rg-health-monitor-dev \
+            --container-image-name healthmonitoracrdev.azurecr.io/devops-health-api:${{ github.sha }}
+          az webapp restart \
+            --name health-monitor-dev \
+            --resource-group rg-health-monitor-dev

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Service Status Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        h1 { font-size: 1.5rem; color: #38bdf8; }
+        .overall {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .overall-ok {
+            background: #052e16; color: #4ade80;
+            border: 1px solid #166534;
+        }
+        .overall-bad {
+            background: #450a0a; color: #f87171;
+            border: 1px solid #991b1b;
+        }
+        .info-bar {
+            display: flex; gap: 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.75rem; color: #64748b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            border-bottom: 1px solid #1e293b;
+        }
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #1e293b;
+            font-size: 0.875rem;
+        }
+        tr:hover { background: #1e293b; }
+        .dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        .dot-healthy { background: #4ade80; }
+        .dot-degraded { background: #fbbf24; }
+        .dot-down { background: #f87171; }
+        .badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-healthy {
+            background: #052e16; color: #4ade80;
+        }
+        .badge-degraded {
+            background: #422006; color: #fbbf24;
+        }
+        .badge-down {
+            background: #450a0a; color: #f87171;
+        }
+        .ms { color: #94a3b8; }
+        .uptime { color: #4ade80; font-weight: 600; }
+        .uptime-bad { color: #fbbf24; }
+        .uptime-down { color: #f87171; }
+        .actions { margin-top: 2rem; }
+        .actions h2 {
+            font-size: 1rem; color: #94a3b8;
+            margin-bottom: 0.75rem;
+        }
+        .btn-row {
+            display: flex; gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+        button {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #e2e8f0;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        button:hover { background: #334155; }
+        .btn-danger {
+            border-color: #991b1b;
+            color: #f87171;
+        }
+        .btn-warn {
+            border-color: #92400e;
+            color: #fbbf24;
+        }
+        .btn-ok {
+            border-color: #166534;
+            color: #4ade80;
+        }
+        .updated {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Service Status Dashboard</h1>
+        <div class="overall overall-ok" id="overall">
+            All Systems Operational
+        </div>
+    </div>
+
+    <div class="info-bar" id="info-bar"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Status</th>
+                <th>Response Time</th>
+                <th>Uptime (30d)</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="actions">
+        <h2>Simulate Incident</h2>
+        <div class="btn-row" id="buttons"></div>
+    </div>
+
+    <p class="updated" id="updated"></p>
+
+    <script>
+        async function load() {
+            const hRes = await fetch('/health');
+            const health = await hRes.json();
+
+            const sRes = await fetch('/api/services');
+            const data = await sRes.json();
+
+            const bar = document.getElementById('info-bar');
+            bar.innerHTML =
+                '<span>Version: ' + health.version + '</span>' +
+                '<span>Env: ' + health.environment + '</span>' +
+                '<span>Host: ' + health.hostname + '</span>';
+
+            const overall = document.getElementById('overall');
+            const allOk = data.services.every(
+                s => s.status === 'healthy'
+            );
+            if (allOk) {
+                overall.textContent = 'All Systems Operational';
+                overall.className = 'overall overall-ok';
+            } else {
+                overall.textContent = 'Incident Detected';
+                overall.className = 'overall overall-bad';
+            }
+
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = '';
+            data.services.forEach(s => {
+                const dot = 'dot dot-' + s.status;
+                const badge = 'badge badge-' + s.status;
+                const ms = s.response_ms < 0
+                    ? '--' : s.response_ms + 'ms';
+                let upCls = 'uptime';
+                if (s.uptime_pct < 99) upCls = 'uptime-bad';
+                if (s.uptime_pct < 1) upCls = 'uptime-down';
+
+                tbody.innerHTML +=
+                    '<tr>' +
+                    '<td><span class="' + dot + '"></span>'
+                    + s.name + '</td>' +
+                    '<td><span class="' + badge + '">'
+                    + s.status + '</span></td>' +
+                    '<td class="ms">' + ms + '</td>' +
+                    '<td class="' + upCls + '">'
+                    + s.uptime_pct + '%</td>' +
+                    '</tr>';
+            });
+
+            const btns = document.getElementById('buttons');
+            btns.innerHTML = '';
+            data.services.forEach(s => {
+                if (s.status === 'healthy') {
+                    btns.innerHTML +=
+                        '<button class="btn-warn" onclick='
+                        + '"incident(\'' + s.id
+                        + '\',\'degraded\')">'
+                        + s.name + ' - Degrade</button>'
+                        + '<button class="btn-danger" onclick='
+                        + '"incident(\'' + s.id
+                        + '\',\'down\')">'
+                        + s.name + ' - Down</button>';
+                } else {
+                    btns.innerHTML +=
+                        '<button class="btn-ok" onclick='
+                        + '"incident(\'' + s.id
+                        + '\',\'healthy\')">'
+                        + s.name + ' - Recover</button>';
+                }
+            });
+
+            document.getElementById('updated')
+                .textContent =
+                'Auto-refreshes every 3s | '
+                + new Date().toLocaleTimeString();
+        }
+
+        async function incident(id, status) {
+            await fetch(
+                '/api/incident/' + id + '/' + status,
+                { method: 'POST' }
+            );
+            load();
+        }
+
+        load();
+        setInterval(load, 3000);
+    </script>
+</body>
+</html>

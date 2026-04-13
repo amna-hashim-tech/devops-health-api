@@ -1,0 +1,50 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Test
+    jobs:
+      - job: RunTests
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.11'
+          - script: pip install -r requirements.txt
+            displayName: 'Install dependencies'
+          - script: PYTHONPATH=. pytest app/test_app.py -v
+            displayName: 'Run tests'
+
+  - stage: BuildAndDeploy
+    dependsOn: Test
+    jobs:
+      - job: Deploy
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Build and push Docker image'
+            inputs:
+              azureSubscription: 'Azure subscription 1 (dc8a164c-dab6-4ee6-88e0-608e3cc7f024)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az acr login --name healthmonitoracrdev
+                docker build -t healthmonitoracrdev.azurecr.io/devops-health-api:$(Build.BuildId) .
+                docker push healthmonitoracrdev.azurecr.io/devops-health-api:$(Build.BuildId)
+          - task: AzureCLI@2
+            displayName: 'Deploy to App Service'
+            inputs:
+              azureSubscription: 'Azure subscription 1 (dc8a164c-dab6-4ee6-88e0-608e3cc7f024)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az webapp config container set \
+                  --name health-monitor-dev \
+                  --resource-group rg-health-monitor-dev \
+                  --container-image-name healthmonitoracrdev.azurecr.io/devops-health-api:$(Build.BuildId)
+                az webapp restart \
+                  --name health-monitor-dev \
+                  --resource-group rg-health-monitor-dev

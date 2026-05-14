@@ -8,7 +8,7 @@ import asyncio
 
 app = FastAPI(title="Multi-Service Status Dashboard")
 
-APP_VERSION = "3.0.0"
+APP_VERSION = "4.0.0"
 START_TIME = datetime.datetime.now()
 
 SERVICES = {
@@ -37,6 +37,11 @@ SERVICES = {
         "url": "https://www.microsoft.com",
         "threshold_ms": 700
     },
+    "dockerhub": {
+        "name": "Docker Hub",
+        "url": "https://hub.docker.com",
+        "threshold_ms": 500
+    },
 }
 
 incident_log = []
@@ -49,10 +54,7 @@ async def check_service(svc_id: str, svc: dict) -> dict:
         elapsed = int(
             (datetime.datetime.now() - start).total_seconds() * 1000
         )
-        if elapsed > svc["threshold_ms"]:
-            status = "degraded"
-        else:
-            status = "healthy"
+        status = "degraded" if elapsed > svc["threshold_ms"] else "healthy"
     except Exception:
         elapsed = -1
         status = "down"
@@ -64,7 +66,6 @@ async def check_service(svc_id: str, svc: dict) -> dict:
         "status": status,
         "response_ms": elapsed,
         "threshold_ms": svc["threshold_ms"],
-        "checked_at": datetime.datetime.now().isoformat(),
     }
 
 @app.get("/health")

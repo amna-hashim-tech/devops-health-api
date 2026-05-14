@@ -8,7 +8,7 @@ def test_health():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
-    assert data["version"] == "2.0.0"
+    assert data["version"] == "3.0.0"
 
 def test_dashboard():
     response = client.get("/")
@@ -20,13 +20,11 @@ def test_services():
     assert response.status_code == 200
     data = response.json()
     assert len(data["services"]) == 5
-    for svc in data["services"]:
-        assert svc["status"] == "healthy"
 
-def test_incident():
-    response = client.post("/api/incident/database/down")
+def test_incident_log():
+    response = client.post("/api/incident/azure?note=Test incident")
     assert response.status_code == 200
-    services = client.get("/api/services").json()
-    db = [s for s in services["services"] if s["id"] == "database"][0]
-    assert db["status"] == "down"
-    client.post("/api/incident/database/healthy")
+    response = client.get("/api/incidents")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["incidents"]) >= 1

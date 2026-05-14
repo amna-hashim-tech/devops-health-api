@@ -3,22 +3,69 @@ from fastapi.responses import HTMLResponse
 import os
 import platform
 import datetime
-import random
+import httpx
+import asyncio
 
 app = FastAPI(title="Multi-Service Status Dashboard")
 
-APP_VERSION = "2.0.0"
+APP_VERSION = "3.0.0"
 START_TIME = datetime.datetime.now()
 
 SERVICES = {
-    "api-gateway": {"name": "API Gateway", "base_ms": 45},
-    "database": {"name": "PostgreSQL Database", "base_ms": 12},
-    "storage": {"name": "Blob Storage", "base_ms": 30},
-    "auth-service": {"name": "Auth Service", "base_ms": 25},
-    "payment": {"name": "Payment Gateway", "base_ms": 60},
+    "azure": {
+        "name": "Azure Cloud",
+        "url": "https://azure.microsoft.com",
+        "threshold_ms": 800
+    },
+    "github": {
+        "name": "GitHub",
+        "url": "https://github.com",
+        "threshold_ms": 600
+    },
+    "google": {
+        "name": "Google APIs",
+        "url": "https://www.google.com",
+        "threshold_ms": 400
+    },
+    "cloudflare": {
+        "name": "Cloudflare DNS",
+        "url": "https://1.1.1.1",
+        "threshold_ms": 300
+    },
+    "microsoft": {
+        "name": "Microsoft 365",
+        "url": "https://www.microsoft.com",
+        "threshold_ms": 700
+    },
 }
 
-incidents = {}
+incident_log = []
+
+async def check_service(svc_id: str, svc: dict) -> dict:
+    start = datetime.datetime.now()
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            await client.get(svc["url"])
+        elapsed = int(
+            (datetime.datetime.now() - start).total_seconds() * 1000
+        )
+        if elapsed > svc["threshold_ms"]:
+            status = "degraded"
+        else:
+            status = "healthy"
+    except Exception:
+        elapsed = -1
+        status = "down"
+
+    return {
+        "id": svc_id,
+        "name": svc["name"],
+        "url": svc["url"],
+        "status": status,
+        "response_ms": elapsed,
+        "threshold_ms": svc["threshold_ms"],
+        "checked_at": datetime.datetime.now().isoformat(),
+    }
 
 @app.get("/health")
 def health_check():
@@ -33,35 +80,26 @@ def health_check():
     }
 
 @app.get("/api/services")
-def get_services():
-    result = []
-    for svc_id, svc in SERVICES.items():
-        if svc_id in incidents:
-            status = incidents[svc_id]
-            response_ms = random.randint(800, 3000) if status == "degraded" else -1
-            uptime = 94.5 if status == "degraded" else 0.0
-        else:
-            status = "healthy"
-            response_ms = svc["base_ms"] + random.randint(-5, 15)
-            uptime = round(random.uniform(99.5, 99.99), 2)
-        result.append({
-            "id": svc_id,
-            "name": svc["name"],
-            "status": status,
-            "response_ms": response_ms,
-            "uptime_pct": uptime,
-        })
-    return {"services": result}
+async def get_services():
+    tasks = [
+        check_service(svc_id, svc)
+        for svc_id, svc in SERVICES.items()
+    ]
+    results = await asyncio.gather(*tasks)
+    return {"services": list(results)}
 
-@app.post("/api/incident/{service_id}/{status}")
-def set_incident(service_id: str, status: str):
-    if service_id not in SERVICES:
-        return {"error": "Service not found"}
-    if status == "healthy":
-        incidents.pop(service_id, None)
-    else:
-        incidents[service_id] = status
-    return {"message": f"{service_id} set to {status}"}
+@app.post("/api/incident/{service_id}")
+def log_incident(service_id: str, note: str = "Manual incident"):
+    incident_log.append({
+        "service": service_id,
+        "note": note,
+        "timestamp": datetime.datetime.now().isoformat(),
+    })
+    return {"message": "Incident logged"}
+
+@app.get("/api/incidents")
+def get_incidents():
+    return {"incidents": list(reversed(incident_log[-20:]))}
 
 @app.get("/", response_class=HTMLResponse)
 def dashboard():

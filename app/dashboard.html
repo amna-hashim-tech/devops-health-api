@@ -1,165 +1,403 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Service Status Dashboard</title>
+    <title>DevOps Status Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #080c10;
+            --surface: #0d1117;
+            --border: #1e2d3d;
+            --text: #c9d1d9;
+            --muted: #484f58;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --yellow: #d29922;
+            --red: #f85149;
+            --green-dim: #0d2b12;
+            --yellow-dim: #2b1d00;
+            --red-dim: #2b0c0c;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            padding: 2rem;
+            padding: 0;
         }
-        .header {
+        /* Top nav */
+        .nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
         }
-        h1 { font-size: 1.5rem; color: #38bdf8; }
-        .overall {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .nav-icon {
+            width: 28px; height: 28px;
+            background: var(--accent);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--bg);
+        }
+        .nav-title {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.02em;
         }
-        .overall-ok { background: #052e16; color: #4ade80; border: 1px solid #166534; }
-        .overall-bad { background: #450a0a; color: #f87171; border: 1px solid #991b1b; }
-        .overall-warn { background: #422006; color: #fbbf24; border: 1px solid #92400e; }
-        .info-bar {
-            display: flex; gap: 1.5rem;
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .overall-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .badge-ok { background: var(--green-dim); color: var(--green); border: 1px solid #1e4620; }
+        .badge-warn { background: var(--yellow-dim); color: var(--yellow); border: 1px solid #4a3000; }
+        .badge-bad { background: var(--red-dim); color: var(--red); border: 1px solid #4a1010; }
+
+        /* Main content */
+        .main { padding: 1.5rem 2rem; }
+
+        /* Meta bar */
+        .meta {
+            display: flex;
+            gap: 2rem;
             margin-bottom: 1.5rem;
-            font-size: 0.75rem; color: #64748b;
+            padding: 0.75rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
         }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
-        th {
-            text-align: left; padding: 0.75rem 1rem;
-            font-size: 0.75rem; text-transform: uppercase;
-            letter-spacing: 0.05em; color: #64748b;
-            border-bottom: 1px solid #1e293b;
+        .meta span { display: flex; align-items: center; gap: 0.4rem; }
+        .meta-label { color: var(--accent); }
+
+        /* Services grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
         }
-        td { padding: 1rem; border-bottom: 1px solid #1e293b; font-size: 0.875rem; }
-        tr:hover { background: #1e293b; }
-        .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.5rem; }
-        .dot-healthy { background: #4ade80; animation: pulse-green 2s infinite; }
-        .dot-degraded { background: #fbbf24; animation: pulse-yellow 2s infinite; }
-        .dot-down { background: #f87171; }
-        @keyframes pulse-green {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
-            50% { box-shadow: 0 0 0 4px rgba(74,222,128,0); }
+        .service-card {
+            background: var(--surface);
+            padding: 1.25rem 1.5rem;
+            transition: background 0.15s;
         }
-        @keyframes pulse-yellow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.4); }
-            50% { box-shadow: 0 0 0 4px rgba(251,191,36,0); }
+        .service-card:hover { background: #111820; }
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
         }
-        .badge { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
-        .badge-healthy { background: #052e16; color: #4ade80; }
-        .badge-degraded { background: #422006; color: #fbbf24; }
-        .badge-down { background: #450a0a; color: #f87171; }
-        .ms { color: #94a3b8; }
-        .bar-wrap { width: 100px; height: 6px; background: #1e293b; border-radius: 3px; display: inline-block; margin-left: 0.5rem; vertical-align: middle; }
-        .bar-fill { height: 100%; border-radius: 3px; }
-        .section-title { font-size: 0.875rem; color: #64748b; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        .log-table { width: 100%; border-collapse: collapse; }
-        .log-table td { padding: 0.6rem 1rem; border-bottom: 1px solid #1e293b; font-size: 0.8rem; color: #94a3b8; }
-        .log-empty { color: #475569; font-size: 0.8rem; padding: 1rem 0; }
-        .updated { text-align: center; margin-top: 2rem; font-size: 0.7rem; color: #475569; }
-        .checking { color: #475569; font-style: italic; }
+        .service-name {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-healthy { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+        .dot-degraded { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); animation: pulse-y 2s infinite; }
+        .dot-down { background: var(--red); }
+        @keyframes pulse {
+            0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+        }
+        @keyframes pulse-y {
+            0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+        }
+        .status-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .pill-healthy { background: var(--green-dim); color: var(--green); }
+        .pill-degraded { background: var(--yellow-dim); color: var(--yellow); }
+        .pill-down { background: var(--red-dim); color: var(--red); }
+
+        .service-metrics {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .metric { flex: 1; }
+        .metric-label {
+            font-size: 0.65rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .bar-track {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 0.4rem;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        /* Section title */
+        .section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Incident log */
+        .incident-log {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .log-row {
+            display: grid;
+            grid-template-columns: 160px 140px 1fr;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+        .log-empty {
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            margin-top: 1.5rem;
+        }
+        .tech-badges {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .tech-badge {
+            padding: 0.2rem 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-size: 0.6rem;
+            color: var(--muted);
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Service Status Dashboard</h1>
-        <div class="overall overall-ok" id="overall">Checking...</div>
-    </div>
-    <div class="info-bar" id="info-bar"></div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Service</th>
-                <th>Status</th>
-                <th>Response Time</th>
-                <th>Threshold</th>
-            </tr>
-        </thead>
-        <tbody id="tbody"><tr><td colspan="4" class="checking">Checking services...</td></tr></tbody>
-    </table>
+<nav class="nav">
+    <div class="nav-left">
+        <div class="nav-icon">ops</div>
+        <span class="nav-title">DevOps Status Monitor</span>
+    </div>
+    <div class="nav-right">
+        <span id="overall-badge" class="overall-badge badge-ok">checking...</span>
+        <span id="nav-time">--:--:--</span>
+    </div>
+</nav>
+
+<div class="main">
+    <div class="meta" id="meta-bar">
+        <span><span class="meta-label">version</span> --</span>
+        <span><span class="meta-label">env</span> --</span>
+        <span><span class="meta-label">host</span> --</span>
+        <span><span class="meta-label">uptime</span> --</span>
+    </div>
+
+    <div class="section-title">Live Service Health</div>
+    <div class="services-grid" id="services-grid">
+        <div class="service-card">
+            <div style="color:var(--muted);font-size:0.8rem;font-family:'JetBrains Mono',monospace">Initializing...</div>
+        </div>
+    </div>
 
     <div class="section-title">Incident Log</div>
-    <table class="log-table">
-        <tbody id="log-body"><tr><td class="log-empty">No incidents recorded.</td></tr></tbody>
-    </table>
+    <div class="incident-log">
+        <div class="log-empty" id="log-body">No incidents recorded.</div>
+    </div>
 
-    <p class="updated" id="updated"></p>
+    <div class="footer">
+        <div id="last-updated">Connecting to services...</div>
+        <div class="tech-badges">
+            <span class="tech-badge">FastAPI</span>
+            <span class="tech-badge">Docker</span>
+            <span class="tech-badge">Azure</span>
+            <span class="tech-badge">Terraform</span>
+            <span class="tech-badge">GitHub Actions</span>
+            <span class="tech-badge">Azure DevOps</span>
+        </div>
+    </div>
+</div>
 
-    <script>
-        async function load() {
+<script>
+    function fmtMs(ms) {
+        if (ms < 0) return '--';
+        return ms + 'ms';
+    }
+
+    function barColor(status) {
+        if (status === 'healthy') return '#3fb950';
+        if (status === 'degraded') return '#d29922';
+        return '#f85149';
+    }
+
+    async function load() {
+        try {
             const hRes = await fetch('/health');
             const health = await hRes.json();
 
-            document.getElementById('info-bar').innerHTML =
-                '<span>Version: ' + health.version + '</span>' +
-                '<span>Env: ' + health.environment + '</span>' +
-                '<span>Host: ' + health.hostname + '</span>' +
-                '<span>Uptime: ' + Math.floor(health.uptime_seconds/60) + 'm</span>';
+            document.getElementById('meta-bar').innerHTML =
+                '<span><span class="meta-label">version</span> ' + health.version + '</span>' +
+                '<span><span class="meta-label">env</span> ' + health.environment + '</span>' +
+                '<span><span class="meta-label">host</span> ' + health.hostname.substring(0,12) + '</span>' +
+                '<span><span class="meta-label">uptime</span> ' + Math.floor(health.uptime_seconds/60) + 'm ' + (health.uptime_seconds%60) + 's</span>';
 
             const sRes = await fetch('/api/services');
             const data = await sRes.json();
 
             const hasDown = data.services.some(s => s.status === 'down');
             const hasDeg = data.services.some(s => s.status === 'degraded');
-            const overall = document.getElementById('overall');
+            const badge = document.getElementById('overall-badge');
             if (hasDown) {
-                overall.textContent = 'Major Outage';
-                overall.className = 'overall overall-bad';
+                badge.textContent = 'Major Outage';
+                badge.className = 'overall-badge badge-bad';
             } else if (hasDeg) {
-                overall.textContent = 'Partial Degradation';
-                overall.className = 'overall overall-warn';
+                badge.textContent = 'Partial Degradation';
+                badge.className = 'overall-badge badge-warn';
             } else {
-                overall.textContent = 'All Systems Operational';
-                overall.className = 'overall overall-ok';
+                badge.textContent = 'All Systems Operational';
+                badge.className = 'overall-badge badge-ok';
             }
 
-            const tbody = document.getElementById('tbody');
-            tbody.innerHTML = '';
+            const grid = document.getElementById('services-grid');
+            grid.innerHTML = '';
             data.services.forEach(s => {
-                const ms = s.response_ms < 0 ? '--' : s.response_ms + 'ms';
                 const pct = s.response_ms < 0 ? 0 : Math.min(100, Math.round(s.response_ms / s.threshold_ms * 100));
-                const barColor = s.status === 'healthy' ? '#4ade80' : s.status === 'degraded' ? '#fbbf24' : '#f87171';
-                tbody.innerHTML +=
-                    '<tr>' +
-                    '<td><span class="dot dot-' + s.status + '"></span>' + s.name + '</td>' +
-                    '<td><span class="badge badge-' + s.status + '">' + s.status + '</span></td>' +
-                    '<td class="ms">' + ms +
-                    '<span class="bar-wrap"><span class="bar-fill" style="width:' + pct + '%;background:' + barColor + '"></span></span>' +
-                    '</td>' +
-                    '<td class="ms">' + s.threshold_ms + 'ms</td>' +
-                    '</tr>';
+                grid.innerHTML +=
+                    '<div class="service-card">' +
+                    '<div class="service-header">' +
+                    '<div class="service-name"><span class="dot dot-' + s.status + '"></span>' + s.name + '</div>' +
+                    '<span class="status-pill pill-' + s.status + '">' + s.status + '</span>' +
+                    '</div>' +
+                    '<div class="service-metrics">' +
+                    '<div class="metric">' +
+                    '<div class="metric-label">Response</div>' +
+                    '<div class="metric-value">' + fmtMs(s.response_ms) + '</div>' +
+                    '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:' + barColor(s.status) + '"></div></div>' +
+                    '</div>' +
+                    '<div class="metric">' +
+                    '<div class="metric-label">Threshold</div>' +
+                    '<div class="metric-value" style="color:var(--muted)">' + s.threshold_ms + 'ms</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
             });
 
             const iRes = await fetch('/api/incidents');
             const iData = await iRes.json();
             const logBody = document.getElementById('log-body');
             if (iData.incidents.length === 0) {
-                logBody.innerHTML = '<tr><td class="log-empty">No incidents recorded.</td></tr>';
+                logBody.outerHTML = '<div class="log-empty" id="log-body">No incidents recorded.</div>';
             } else {
-                logBody.innerHTML = '';
+                let html = '';
                 iData.incidents.forEach(i => {
-                    logBody.innerHTML +=
-                        '<tr><td>' + i.timestamp.replace('T', ' ').substring(0,19) + '</td>' +
-                        '<td>' + i.service + '</td>' +
-                        '<td>' + i.note + '</td></tr>';
+                    html += '<div class="log-row">' +
+                        '<span>' + i.timestamp.substring(0,19).replace('T',' ') + '</span>' +
+                        '<span style="color:var(--accent)">' + i.service + '</span>' +
+                        '<span>' + i.note + '</span>' +
+                        '</div>';
                 });
+                logBody.outerHTML = '<div id="log-body">' + html + '</div>';
             }
 
-            document.getElementById('updated').textContent =
-                'Live data — auto-refreshes every 10s | Last: ' + new Date().toLocaleTimeString();
-        }
+            document.getElementById('nav-time').textContent = new Date().toLocaleTimeString();
+            document.getElementById('last-updated').textContent =
+                'Live data · auto-refreshes every 10s · last updated ' + new Date().toLocaleTimeString();
 
-        load();
-        setInterval(load, 10000);
-    </script>
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    load();
+    setInterval(load, 10000);
+    setInterval(() => {
+        document.getElementById('nav-time').textContent = new Date().toLocaleTimeString();
+    }, 1000);
+</script>
 </body>
 </html>

@@ -6,41 +6,41 @@ import datetime
 import httpx
 import asyncio
 
-app = FastAPI(title="Multi-Service Status Dashboard")
+app = FastAPI(title="DevOps Status Monitor")
 
-APP_VERSION = "4.0.0"
+APP_VERSION = "5.0.0"
 START_TIME = datetime.datetime.now()
 
 SERVICES = {
-    "azure": {
-        "name": "Azure Cloud",
-        "url": "https://azure.microsoft.com",
-        "threshold_ms": 800
-    },
     "github": {
         "name": "GitHub",
         "url": "https://github.com",
         "threshold_ms": 600
     },
-    "google": {
-        "name": "Google APIs",
-        "url": "https://www.google.com",
-        "threshold_ms": 400
-    },
-    "cloudflare": {
-        "name": "Cloudflare DNS",
-        "url": "https://1.1.1.1",
-        "threshold_ms": 300
-    },
-    "microsoft": {
-        "name": "Microsoft 365",
-        "url": "https://www.microsoft.com",
-        "threshold_ms": 700
-    },
     "dockerhub": {
         "name": "Docker Hub",
         "url": "https://hub.docker.com",
-        "threshold_ms": 500
+        "threshold_ms": 800
+    },
+    "azure": {
+        "name": "Azure Cloud",
+        "url": "https://azure.microsoft.com",
+        "threshold_ms": 800
+    },
+    "cloudflare": {
+        "name": "Cloudflare",
+        "url": "https://1.1.1.1",
+        "threshold_ms": 300
+    },
+    "googlecloud": {
+        "name": "Google Cloud",
+        "url": "https://cloud.google.com",
+        "threshold_ms": 700
+    },
+    "aws": {
+        "name": "AWS",
+        "url": "https://aws.amazon.com",
+        "threshold_ms": 700
     },
 }
 

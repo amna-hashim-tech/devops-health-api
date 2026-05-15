@@ -1,0 +1,91 @@
+<svg width="100%" viewBox="0 0 680 520" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>DevOps Status Monitor Architecture</title>
+<desc>Architecture diagram showing code flow from GitHub through CI/CD pipelines to Azure deployment</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<!-- Background -->
+<rect width="680" height="520" fill="#0d1117"/>
+
+<!-- Developer -->
+<rect x="40" y="220" width="100" height="56" rx="8" fill="#21262d" stroke="#30363d" stroke-width="0.5"/>
+<text font-family="monospace" font-size="13" font-weight="600" fill="#e6edf3" x="90" y="246" text-anchor="middle">Developer</text>
+<text font-family="monospace" font-size="11" fill="#7d8590" x="90" y="264" text-anchor="middle">git push</text>
+
+<!-- Arrow: Dev to GitHub -->
+<line x1="140" y1="248" x2="188" y2="248" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- GitHub -->
+<rect x="190" y="220" width="100" height="56" rx="8" fill="#1a1060" stroke="#7777cc" stroke-width="0.5"/>
+<text font-family="monospace" font-size="13" font-weight="600" fill="#e6edf3" x="240" y="246" text-anchor="middle">GitHub</text>
+<text font-family="monospace" font-size="11" fill="#aaaaee" x="240" y="264" text-anchor="middle">main branch</text>
+
+<!-- Arrow: GitHub to GH Actions -->
+<line x1="240" y1="220" x2="240" y2="158" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Arrow: GitHub to Azure DevOps -->
+<line x1="240" y1="276" x2="240" y2="338" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- GitHub Actions -->
+<rect x="155" y="100" width="170" height="56" rx="8" fill="#0d2b1e" stroke="#1e4620" stroke-width="0.5"/>
+<text font-family="monospace" font-size="13" font-weight="600" fill="#3fb950" x="240" y="124" text-anchor="middle">GitHub Actions</text>
+<text font-family="monospace" font-size="11" fill="#3fb950" x="240" y="142" text-anchor="middle">Test → Build → Deploy</text>
+
+<!-- Azure DevOps -->
+<rect x="155" y="340" width="170" height="56" rx="8" fill="#0c2240" stroke="#185fa5" stroke-width="0.5"/>
+<text font-family="monospace" font-size="13" font-weight="600" fill="#58a6ff" x="240" y="364" text-anchor="middle">Azure DevOps</text>
+<text font-family="monospace" font-size="11" fill="#58a6ff" x="240" y="382" text-anchor="middle">Test → Build → Deploy</text>
+
+<!-- Arrow: GH Actions to Docker -->
+<line x1="325" y1="128" x2="388" y2="128" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Arrow: Azure DevOps to Docker -->
+<line x1="325" y1="368" x2="388" y2="368" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Docker Build top -->
+<rect x="390" y="100" width="120" height="56" rx="8" fill="#2b1d00" stroke="#d29922" stroke-width="0.5"/>
+<text font-family="monospace" font-size="13" font-weight="600" fill="#d29922" x="450" y="124" text-anchor="middle">Docker</text>
+<text font-family="monospace" font-size="11" fill="#d29922" x="450" y="142" text-anchor="middle">Build image</text>
+
+<!-- Docker Build bottom -->
+<rect x="390" y="340" width="120" height="56" rx="8" fill="#2b1d00" stroke="#d29922" stroke-width="0.5"/>
+<text font-family="monospace" font-size="13" font-weight="600" fill="#d29922" x="450" y="364" text-anchor="middle">Docker</text>
+<text font-family="monospace" font-size="11" fill="#d29922" x="450" y="382" text-anchor="middle">Build image</text>
+
+<!-- Lines from Docker to ACR -->
+<path d="M560 156 L560 213" fill="none" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M560 340 L560 273" fill="none" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="510" y1="128" x2="558" y2="128" stroke="#58a6ff" stroke-width="1.5"/>
+<path d="M558 128 L560 156" fill="none" stroke="#58a6ff" stroke-width="1.5"/>
+<line x1="510" y1="368" x2="558" y2="368" stroke="#58a6ff" stroke-width="1.5"/>
+<path d="M558 368 L560 340" fill="none" stroke="#58a6ff" stroke-width="1.5"/>
+
+<!-- ACR -->
+<rect x="550" y="215" width="110" height="56" rx="8" fill="#0c2240" stroke="#185fa5" stroke-width="0.5"/>
+<text font-family="monospace" font-size="13" font-weight="600" fill="#58a6ff" x="605" y="239" text-anchor="middle">Azure ACR</text>
+<text font-family="monospace" font-size="11" fill="#58a6ff" x="605" y="257" text-anchor="middle">Container registry</text>
+
+<!-- Arrow: ACR to App Service -->
+<line x1="605" y1="271" x2="605" y2="398" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- Azure App Service -->
+<rect x="540" y="400" width="120" height="56" rx="8" fill="#0d2b1e" stroke="#1e4620" stroke-width="0.5"/>
+<text font-family="monospace" font-size="13" font-weight="600" fill="#3fb950" x="600" y="424" text-anchor="middle">App Service</text>
+<text font-family="monospace" font-size="11" fill="#3fb950" x="600" y="442" text-anchor="middle">Live on Azure</text>
+
+<!-- Live URL -->
+<text font-family="monospace" font-size="10" fill="#7d8590" x="600" y="474" text-anchor="middle">health-monitor-dev.azurewebsites.net</text>
+
+<!-- Step labels -->
+<text font-family="monospace" font-size="10" fill="#7d8590" x="90" y="300" text-anchor="middle">1. Push code</text>
+<text font-family="monospace" font-size="10" fill="#7d8590" x="240" y="205" text-anchor="middle">2a. GitHub Actions</text>
+<text font-family="monospace" font-size="10" fill="#7d8590" x="240" y="325" text-anchor="middle">2b. Azure DevOps</text>
+<text font-family="monospace" font-size="10" fill="#7d8590" x="450" y="95" text-anchor="middle">3. Docker build</text>
+<text font-family="monospace" font-size="10" fill="#7d8590" x="450" y="335" text-anchor="middle">3. Docker build</text>
+<text font-family="monospace" font-size="10" fill="#7d8590" x="605" y="210" text-anchor="middle">4. Push to ACR</text>
+<text font-family="monospace" font-size="10" fill="#7d8590" x="605" y="395" text-anchor="middle">5. Deploy</text>
+
+</svg>

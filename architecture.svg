@@ -1,0 +1,37 @@
+<svg width="100%" viewBox="0 0 680 340" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>DevOps Status Monitor — CI/CD Architecture</title>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="#666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect width="680" height="340" fill="#0d1117"/>
+<rect x="20" y="140" width="90" height="44" rx="6" fill="#161b22" stroke="#30363d" stroke-width="0.5"/>
+<text font-family="'Segoe UI',sans-serif" font-size="13" font-weight="600" fill="#e6edf3" x="65" y="167" text-anchor="middle">Developer</text>
+<line x1="110" y1="162" x2="148" y2="162" stroke="#484f58" stroke-width="1" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#7d8590" x="129" y="155" text-anchor="middle">push</text>
+<rect x="150" y="140" width="90" height="44" rx="6" fill="#161b22" stroke="#30363d" stroke-width="0.5"/>
+<text font-family="'Segoe UI',sans-serif" font-size="13" font-weight="600" fill="#e6edf3" x="195" y="167" text-anchor="middle">GitHub</text>
+<path d="M240 155 L280 155 L280 90 L318 90" fill="none" stroke="#484f58" stroke-width="1" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#7d8590" x="279" y="120" text-anchor="middle">triggers</text>
+<path d="M240 172 L280 172 L280 235 L318 235" fill="none" stroke="#484f58" stroke-width="1" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#7d8590" x="279" y="210" text-anchor="middle">triggers</text>
+<rect x="320" y="68" width="130" height="44" rx="6" fill="#161b22" stroke="#30363d" stroke-width="0.5"/>
+<text font-family="'Segoe UI',sans-serif" font-size="13" font-weight="600" fill="#e6edf3" x="385" y="86" text-anchor="middle">GitHub Actions</text>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#7d8590" x="385" y="103" text-anchor="middle">test → build → deploy</text>
+<rect x="320" y="213" width="130" height="44" rx="6" fill="#161b22" stroke="#30363d" stroke-width="0.5"/>
+<text font-family="'Segoe UI',sans-serif" font-size="13" font-weight="600" fill="#e6edf3" x="385" y="231" text-anchor="middle">Azure DevOps</text>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#7d8590" x="385" y="248" text-anchor="middle">test → build → deploy</text>
+<path d="M450 90 L490 90 L490 162 L528 162" fill="none" stroke="#484f58" stroke-width="1" marker-end="url(#arrow)"/>
+<path d="M450 235 L490 235 L490 175 L528 175" fill="none" stroke="#484f58" stroke-width="1" marker-end="url(#arrow)"/>
+<rect x="530" y="140" width="90" height="56" rx="6" fill="#161b22" stroke="#30363d" stroke-width="0.5"/>
+<text font-family="'Segoe UI',sans-serif" font-size="13" font-weight="600" fill="#e6edf3" x="575" y="161" text-anchor="middle">Azure ACR</text>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#7d8590" x="575" y="178" text-anchor="middle">container</text>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#7d8590" x="575" y="191" text-anchor="middle">registry</text>
+<line x1="575" y1="196" x2="575" y2="258" stroke="#484f58" stroke-width="1" marker-end="url(#arrow)"/>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#7d8590" x="590" y="228" text-anchor="start">deploy</text>
+<rect x="530" y="260" width="90" height="44" rx="6" fill="#161b22" stroke="#30363d" stroke-width="0.5"/>
+<text font-family="'Segoe UI',sans-serif" font-size="13" font-weight="600" fill="#e6edf3" x="575" y="278" text-anchor="middle">App Service</text>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#7d8590" x="575" y="295" text-anchor="middle">live on Azure</text>
+<text font-family="'Segoe UI',sans-serif" font-size="11" fill="#484f58" x="385" y="50" text-anchor="middle">Both pipelines run in parallel on every push</text>
+</svg>

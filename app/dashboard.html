@@ -2,14 +2,13 @@
 <html>
 <head>
     <title>DevOps Status Monitor</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #080c10;
-            --surface: #0d1117;
-            --border: #1e2d3d;
-            --text: #c9d1d9;
-            --muted: #484f58;
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #e6edf3;
+            --muted: #7d8590;
             --accent: #58a6ff;
             --green: #3fb950;
             --yellow: #d29922;
@@ -20,17 +19,16 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            padding: 0;
+            font-size: 14px;
         }
-        /* Top nav */
         .nav {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
-            padding: 0.75rem 2rem;
+            padding: 14px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -38,168 +36,73 @@
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 10px;
         }
         .nav-icon {
-            width: 28px; height: 28px;
+            width: 30px; height: 30px;
             background: var(--accent);
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--bg);
+            font-size: 11px;
+            font-weight: 800;
+            color: #000;
+            letter-spacing: -0.5px;
         }
         .nav-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.875rem;
+            font-size: 15px;
             font-weight: 600;
             color: var(--text);
-            letter-spacing: 0.02em;
         }
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
-            font-size: 0.75rem;
+            gap: 16px;
+            font-size: 13px;
             color: var(--muted);
-            font-family: 'JetBrains Mono', monospace;
         }
         .overall-badge {
-            padding: 0.3rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 0.05em;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .badge-ok { background: var(--green-dim); color: var(--green); border: 1px solid #1e4620; }
         .badge-warn { background: var(--yellow-dim); color: var(--yellow); border: 1px solid #4a3000; }
         .badge-bad { background: var(--red-dim); color: var(--red); border: 1px solid #4a1010; }
 
-        /* Main content */
-        .main { padding: 1.5rem 2rem; }
+        .main { padding: 24px; }
 
-        /* Meta bar */
         .meta {
             display: flex;
-            gap: 2rem;
-            margin-bottom: 1.5rem;
-            padding: 0.75rem 1rem;
+            gap: 24px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
             background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--muted);
-        }
-        .meta span { display: flex; align-items: center; gap: 0.4rem; }
-        .meta-label { color: var(--accent); }
-
-        /* Services grid */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1px;
-            background: var(--border);
             border: 1px solid var(--border);
             border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-        }
-        .service-card {
-            background: var(--surface);
-            padding: 1.25rem 1.5rem;
-            transition: background 0.15s;
-        }
-        .service-card:hover { background: #111820; }
-        .service-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-        .service-name {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-        .dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .dot-healthy { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
-        .dot-degraded { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); animation: pulse-y 2s infinite; }
-        .dot-down { background: var(--red); }
-        @keyframes pulse {
-            0%,100% { opacity: 1; } 50% { opacity: 0.4; }
-        }
-        @keyframes pulse-y {
-            0%,100% { opacity: 1; } 50% { opacity: 0.4; }
-        }
-        .status-pill {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 0.2rem 0.5rem;
-            border-radius: 3px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .pill-healthy { background: var(--green-dim); color: var(--green); }
-        .pill-degraded { background: var(--yellow-dim); color: var(--yellow); }
-        .pill-down { background: var(--red-dim); color: var(--red); }
-
-        .service-metrics {
-            display: flex;
-            gap: 1.5rem;
-        }
-        .metric { flex: 1; }
-        .metric-label {
-            font-size: 0.65rem;
+            font-size: 13px;
             color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.3rem;
-            font-family: 'JetBrains Mono', monospace;
         }
-        .metric-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text);
-        }
-        .bar-track {
-            height: 3px;
-            background: var(--border);
-            border-radius: 2px;
-            margin-top: 0.4rem;
-            overflow: hidden;
-        }
-        .bar-fill {
-            height: 100%;
-            border-radius: 2px;
-            transition: width 0.5s ease;
+        .meta-label {
+            color: var(--accent);
+            margin-right: 6px;
+            font-weight: 500;
         }
 
-        /* Section title */
         .section-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
+            font-size: 11px;
+            font-weight: 600;
             color: var(--muted);
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.75rem;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
         }
         .section-title::after {
             content: '';
@@ -208,52 +111,149 @@
             background: var(--border);
         }
 
-        /* Incident log */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .service-card {
+            background: var(--surface);
+            padding: 16px 20px;
+            transition: background 0.15s;
+        }
+        .service-card:hover { background: #1c2128; }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .service-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .dot {
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-healthy { background: var(--green); box-shadow: 0 0 5px var(--green); animation: pulse 2s infinite; }
+        .dot-degraded { background: var(--yellow); box-shadow: 0 0 5px var(--yellow); animation: pulse 2s infinite; }
+        .dot-down { background: var(--red); }
+        @keyframes pulse {
+            0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+        }
+
+        .status-pill {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .pill-healthy { background: var(--green-dim); color: var(--green); }
+        .pill-degraded { background: var(--yellow-dim); color: var(--yellow); }
+        .pill-down { background: var(--red-dim); color: var(--red); }
+
+        .service-metrics { display: flex; gap: 20px; }
+        .metric { flex: 1; }
+        .metric-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .metric-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .bar-track {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
         .incident-log {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .log-header {
+            display: grid;
+            grid-template-columns: 170px 150px 1fr;
+            padding: 8px 16px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .log-row {
             display: grid;
-            grid-template-columns: 160px 140px 1fr;
-            padding: 0.6rem 1rem;
+            grid-template-columns: 170px 150px 1fr;
+            padding: 10px 16px;
             border-bottom: 1px solid var(--border);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.72rem;
+            font-size: 13px;
             color: var(--muted);
         }
         .log-empty {
-            padding: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.72rem;
+            padding: 16px;
+            font-size: 13px;
             color: var(--muted);
         }
 
-        /* Footer */
         .footer {
             text-align: center;
-            padding: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
+            padding: 16px;
+            font-size: 12px;
             color: var(--muted);
             border-top: 1px solid var(--border);
-            margin-top: 1.5rem;
         }
         .tech-badges {
             display: flex;
             justify-content: center;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
+            gap: 8px;
+            margin-top: 8px;
             flex-wrap: wrap;
         }
         .tech-badge {
-            padding: 0.2rem 0.6rem;
+            padding: 4px 10px;
             border: 1px solid var(--border);
-            border-radius: 3px;
-            font-size: 0.6rem;
+            border-radius: 4px;
+            font-size: 12px;
             color: var(--muted);
+            font-weight: 500;
         }
     </style>
 </head>
@@ -265,29 +265,29 @@
         <span class="nav-title">DevOps Status Monitor</span>
     </div>
     <div class="nav-right">
-        <span id="overall-badge" class="overall-badge badge-ok">checking...</span>
+        <span id="overall-badge" class="overall-badge badge-ok">Checking...</span>
         <span id="nav-time">--:--:--</span>
     </div>
 </nav>
 
 <div class="main">
     <div class="meta" id="meta-bar">
-        <span><span class="meta-label">version</span> --</span>
-        <span><span class="meta-label">env</span> --</span>
-        <span><span class="meta-label">host</span> --</span>
-        <span><span class="meta-label">uptime</span> --</span>
+        <span><span class="meta-label">Version</span>--</span>
+        <span><span class="meta-label">Env</span>--</span>
+        <span><span class="meta-label">Host</span>--</span>
+        <span><span class="meta-label">Uptime</span>--</span>
     </div>
 
     <div class="section-title">Live Service Health</div>
     <div class="services-grid" id="services-grid">
         <div class="service-card">
-            <div style="color:var(--muted);font-size:0.8rem;font-family:'JetBrains Mono',monospace">Initializing...</div>
+            <div style="color:var(--muted);font-size:13px">Initializing...</div>
         </div>
     </div>
 
     <div class="section-title">Incident Log</div>
-    <div class="incident-log">
-        <div class="log-empty" id="log-body">No incidents recorded.</div>
+    <div class="incident-log" id="log-container">
+        <div class="log-empty">No incidents recorded.</div>
     </div>
 
     <div class="footer">
@@ -304,11 +304,7 @@
 </div>
 
 <script>
-    function fmtMs(ms) {
-        if (ms < 0) return '--';
-        return ms + 'ms';
-    }
-
+    function fmtMs(ms) { return ms < 0 ? '--' : ms + 'ms'; }
     function barColor(status) {
         if (status === 'healthy') return '#3fb950';
         if (status === 'degraded') return '#d29922';
@@ -319,12 +315,11 @@
         try {
             const hRes = await fetch('/health');
             const health = await hRes.json();
-
             document.getElementById('meta-bar').innerHTML =
-                '<span><span class="meta-label">version</span> ' + health.version + '</span>' +
-                '<span><span class="meta-label">env</span> ' + health.environment + '</span>' +
-                '<span><span class="meta-label">host</span> ' + health.hostname.substring(0,12) + '</span>' +
-                '<span><span class="meta-label">uptime</span> ' + Math.floor(health.uptime_seconds/60) + 'm ' + (health.uptime_seconds%60) + 's</span>';
+                '<span><span class="meta-label">Version</span>' + health.version + '</span>' +
+                '<span><span class="meta-label">Env</span>' + health.environment + '</span>' +
+                '<span><span class="meta-label">Host</span>' + health.hostname.substring(0,12) + '</span>' +
+                '<span><span class="meta-label">Uptime</span>' + Math.floor(health.uptime_seconds/60) + 'm ' + (health.uptime_seconds%60) + 's</span>';
 
             const sRes = await fetch('/api/services');
             const data = await sRes.json();
@@ -332,16 +327,9 @@
             const hasDown = data.services.some(s => s.status === 'down');
             const hasDeg = data.services.some(s => s.status === 'degraded');
             const badge = document.getElementById('overall-badge');
-            if (hasDown) {
-                badge.textContent = 'Major Outage';
-                badge.className = 'overall-badge badge-bad';
-            } else if (hasDeg) {
-                badge.textContent = 'Partial Degradation';
-                badge.className = 'overall-badge badge-warn';
-            } else {
-                badge.textContent = 'All Systems Operational';
-                badge.className = 'overall-badge badge-ok';
-            }
+            if (hasDown) { badge.textContent = 'Major Outage'; badge.className = 'overall-badge badge-bad'; }
+            else if (hasDeg) { badge.textContent = 'Partial Degradation'; badge.className = 'overall-badge badge-warn'; }
+            else { badge.textContent = 'All Systems Operational'; badge.className = 'overall-badge badge-ok'; }
 
             const grid = document.getElementById('services-grid');
             grid.innerHTML = '';
@@ -355,7 +343,7 @@
                     '</div>' +
                     '<div class="service-metrics">' +
                     '<div class="metric">' +
-                    '<div class="metric-label">Response</div>' +
+                    '<div class="metric-label">Response Time</div>' +
                     '<div class="metric-value">' + fmtMs(s.response_ms) + '</div>' +
                     '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:' + barColor(s.status) + '"></div></div>' +
                     '</div>' +
@@ -369,11 +357,11 @@
 
             const iRes = await fetch('/api/incidents');
             const iData = await iRes.json();
-            const logBody = document.getElementById('log-body');
+            const logContainer = document.getElementById('log-container');
             if (iData.incidents.length === 0) {
-                logBody.outerHTML = '<div class="log-empty" id="log-body">No incidents recorded.</div>';
+                logContainer.innerHTML = '<div class="log-empty">No incidents recorded.</div>';
             } else {
-                let html = '';
+                let html = '<div class="log-header"><span>Timestamp</span><span>Service</span><span>Note</span></div>';
                 iData.incidents.forEach(i => {
                     html += '<div class="log-row">' +
                         '<span>' + i.timestamp.substring(0,19).replace('T',' ') + '</span>' +
@@ -381,16 +369,14 @@
                         '<span>' + i.note + '</span>' +
                         '</div>';
                 });
-                logBody.outerHTML = '<div id="log-body">' + html + '</div>';
+                logContainer.innerHTML = html;
             }
 
             document.getElementById('nav-time').textContent = new Date().toLocaleTimeString();
             document.getElementById('last-updated').textContent =
                 'Live data · auto-refreshes every 10s · last updated ' + new Date().toLocaleTimeString();
 
-        } catch(e) {
-            console.error(e);
-        }
+        } catch(e) { console.error(e); }
     }
 
     load();

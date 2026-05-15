@@ -4,7 +4,7 @@ A real-time monitoring dashboard that tracks whether major cloud and DevOps plat
 
 🔗 **Live:** https://health-monitor-dev.azurewebsites.net
 
-![Architecture](architecture.svg)
+![Architecture](arc.svg)
 
 ---
 
